@@ -1,0 +1,11 @@
+.bar {
+    background-color: navy;
+    flex-grow: 1;
+    margin: 0px 1px;
+}
+
+.graph {
+    height: 600px; /* This isn't the greatest */ 
+    align-items: flex-end;
+    background-color: #d3d3d329;
+}
