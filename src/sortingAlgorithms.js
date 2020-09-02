@@ -1,3 +1,5 @@
+// Each sorting algorithm should push animations to an animationList
+
 // QuickSort with pivot always being low
 export const quickSort = (list, low, high, animationList) => {
     if (low < high) {
@@ -32,5 +34,14 @@ const swap = (list, swapOne, swapTwo, animationList) => {
     list[swapOne] = list[swapTwo];
     list[swapTwo] = temp;
 
+    // Highlight bars that are being swapped
+    animationList.push(["color", swapOne, "#c97806"]);
+    animationList.push(["color", swapTwo, "#c97806"]);
+
+    // Swap the bars
     animationList.push(["swap", swapOne, swapTwo]);
+
+    // Revert colors
+    animationList.push(["color", swapOne, "#2406c9"]);
+    animationList.push(["color", swapTwo, "#2406c9"]);
 }
