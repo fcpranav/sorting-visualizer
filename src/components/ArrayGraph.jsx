@@ -1,40 +1,42 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ArrayGraphCSS from './ArrayGraph.module.css';
+import { getMaxInArray } from '../util';
 
 class ArrayGraph extends React.Component{
 
   constructor(props) {
     super(props);
     this.state = {
-      props: null,
-      sortedVisual: false
+      props: props,
+      syncDOM: false,
+      postSort: false
     }
   }
 
-  componentDidMount() {
-    this.setState({props: this.props, sortedVisual: false})
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps === prevState.props) {
+      return null;
+    }
+
+    if (prevState.props.animating === true && nextProps.animating === false) {
+      return { props: nextProps, syncDOM: true, postSort: true }
+    } else {
+      return { props: nextProps, syncDOM: false, postSort: false }
+    };
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (prevState.props && prevState.props.animating === true && nextProps.animating === false) {
-      return { props: nextProps, sortedVisual: true }
-    } else {
-      return { props: nextProps, sortedVisual: false }
-    };
+  componentDidUpdate() {
+    if (this.state.syncDOM === true) {
+      this.setState({ syncDOM: false });
+    }
   }
 
   render() {
     let { itemList, setRefs } = this.props;
-    let { sortedVisual } = this.state;
+    let { postSort, syncDOM } = this.state;
 
-    let max = 0;
-    
-    for (let num of itemList) {
-      if (num > max) {
-          max = num;
-      }
-    };
+    let max = getMaxInArray(itemList);
 
     return (
       <div className={`${ArrayGraphCSS.graph} my-3 d-flex justify-content-center`}>
@@ -49,8 +51,8 @@ class ArrayGraph extends React.Component{
                         ref={(ref) => setRefs(ref, index)}
                         className={ArrayGraphCSS.bar}
                         style={{ 
-                          height: `${computedHeight}%`, 
-                          backgroundColor: (sortedVisual ? "#009f75" : "#818182")
+                          height: (syncDOM ? "0%" : `${computedHeight}%`), 
+                          backgroundColor: (postSort ? "#009f75" : "#818182")
                         }}
                       />
                   );

@@ -1,7 +1,8 @@
 import React from 'react';
 import ArrayGraph from './components/ArrayGraph';
 import './SortingVisualizer.css';
-import { quickSort, bubbleSort } from './sortingAlgorithms';
+import { quickSort, bubbleSort, mergeSort } from './sortingAlgorithms';
+import { getMaxInArray, generateArray } from './util';
 
 class SortingVisualizer extends React.Component{
 
@@ -18,6 +19,7 @@ class SortingVisualizer extends React.Component{
     this.handleGenerateArray = this.handleGenerateArray.bind(this);
     this.handleQuickSort = this.handleQuickSort.bind(this);
     this.handleBubbleSort = this.handleBubbleSort.bind(this);
+    this.handleMergeSort = this.handleMergeSort.bind(this);
     this.setRefs = this.setRefs.bind(this);
     this.handleAnimation = this.animateSortAndUpdateState.bind(this);
   }
@@ -27,13 +29,7 @@ class SortingVisualizer extends React.Component{
   }
 
   handleGenerateArray(length) {
-    let generatedArray = [];
-
-    for (let i = 0; i < length; i++) {
-      generatedArray.push(Math.ceil(Math.random() * length));
-    };
-
-    this.setState({ targetArray: generatedArray });
+    this.setState({ targetArray: generateArray(length) });
   }
 
   handleSkipAnimation() {
@@ -64,8 +60,21 @@ class SortingVisualizer extends React.Component{
     })
   }
 
+  handleMergeSort() { 
+    var sortingArray = [...this.state.targetArray];
+    var animationList = [];
+
+    mergeSort(sortingArray, 0, sortingArray.length - 1, animationList);
+
+    this.setState({ animating: true, sortedArray: sortingArray }, () => {
+      this.animateSortAndUpdateState(animationList);
+    })
+  }
+
+
   animateSortAndUpdateState(animationList) {
     var context = this;
+    var maxVal = getMaxInArray(context.state.targetArray);
     var id = setInterval(function(){
       // Pop off current animation
       let animation = animationList.shift();
@@ -77,21 +86,26 @@ class SortingVisualizer extends React.Component{
         }))
         clearInterval(id);
       }
-      else if (animation[0] === "swap") {
-        let swapOne = animation[1];
-        let swapTwo = animation[2];
-        let barOneHeight = context.graphRefs[swapOne].style.height;
+      else if (animation.type === "swap") {
+        let { targetOne, targetTwo } = animation;
+        let barOneHeight = context.graphRefs[targetOne].style.height;
 
-        context.graphRefs[swapOne].style.height = context.graphRefs[swapTwo].style.height;
-        context.graphRefs[swapTwo].style.height = barOneHeight;
+        context.graphRefs[targetOne].style.height = context.graphRefs[targetTwo].style.height;
+        context.graphRefs[targetTwo].style.height = barOneHeight;
       }
-      else if (animation[0] === "color") {
-        let targetBar = animation[1];
-        let colorHex = animation[2];
+      else if (animation.type === "color") {
+        let { targetBar, colorHex } = animation;
 
         context.graphRefs[targetBar].style.backgroundColor = colorHex;
       }
-    }, 5)
+      else if (animation.type === "set") {
+        let { targetBar, colorHex, barVal } = animation;
+        let barComputedHeight = barVal / maxVal * 100;
+
+        context.graphRefs[targetBar].style.height = barComputedHeight + "%";
+        context.graphRefs[targetBar].style.backgroundColor = colorHex;
+      }
+    }, 10)
 
     this.setState({ animationIntervalId: id })
   }
@@ -139,6 +153,15 @@ class SortingVisualizer extends React.Component{
             disabled={this.state.animating}
           >
             Bubble Sort
+          </button>
+
+          <button 
+            type="button"
+            className="btn btn-secondary ml-2"
+            onClick={this.handleMergeSort}
+            disabled={this.state.animating}
+          >
+            Merge Sort
           </button>
 
           <button
