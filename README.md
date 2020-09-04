@@ -3,17 +3,17 @@
 This application allows you to visualize various sorting algorithms. The project was inspired by the Sorting Visualizers created by https://github.com/clementmihailescu. 
 
 The current algorithms implemented are:
-[1] Quick Sort
-[2] Bubble Sort
-[3] Merge Sort
+- Quick Sort
+- Bubble Sort
+- Merge Sort
+
+![Demo of Merge Sort](public/mergesort.gif)
 
 Feel free to fork off this project if you would like to add more functionality to it. 
 
 Notes / ToDos:
 - Investigate possible wasted renders.
 - Learn more about React Refs / find an alternative. Because of how React Refs are being used, I need to "sync" the React Virtual DOM with the real DOM to pick up all style changes when you skip the animation. Maybe there is a cleaner implementation for doing the animation?
-
-
 
 ---Docs below come with Create React App Bootstrap---
 
